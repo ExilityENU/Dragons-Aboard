@@ -1,0 +1,54 @@
+plugins {
+    id 'java-library'
+    // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
+    id 'net.neoforged.moddev' version '2.0.140'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        // NOTE: runClient/runServer need the full mod stack (Sable, Create,
+        // Aeronautics, Book of Dragons + their deps) on the classpath, which
+        // this minimal buildscript does not set up. Build the jar and test it
+        // inside your modpack instance instead.
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = uri('https://maven.ryanhcode.dev/releases') }
+    maven { url = uri('https://maven.ryanhcode.dev/snapshots') }
+}
+
+dependencies {
+    // Compile-time only: at runtime these are supplied by the modpack.
+    // transitive = false keeps us off Sable's private/third-party mavens (e.g. Veil).
+    compileOnly("dev.ryanhcode.sable:sable-neoforge-${minecraft_version}:${sable_version}") {
+        transitive = false
+    }
+    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:${sable_companion_version}") {
+        transitive = false
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
